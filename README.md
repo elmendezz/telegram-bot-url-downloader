@@ -31,14 +31,25 @@ Sigue estos pasos para poner en marcha tu bot.
 
 ### 1. Prerrequisitos
 
+- **Git**: Necesitarás tener Git instalado. En Termux, puedes instalarlo con `pkg install git`.
 - Python 3.8 o superior.
 - Una cuenta de Google.
 - Un bot de Telegram (créalo hablando con @BotFather).
 
-### 2. Instalación de Dependencias
+### 2. Instalación
 
-Clona o descarga este repositorio y ejecuta el siguiente comando para instalar las librerías necesarias:
+1.  **Clonar el Repositorio**
+    Abre tu terminal (o Termux) y clona el repositorio con el siguiente comando:
+    ```bash
+    git clone https://github.com/elmendezz/telegram-bot-url-downloader.git
+    ```
+    Luego, navega al directorio del proyecto:
+    ```bash
+    cd telegram-bot-url-downloader
+    ```
 
+2.  **Instalar Dependencias**
+    Ejecuta el siguiente comando para instalar las librerías necesarias:
 ```bash
 pip install python-telegram-bot requests beautifulsoup4 google-api-python-client google-auth-oauthlib google-auth-httplib2
 ```
