@@ -104,3 +104,109 @@ La primera vez que ejecutes el bot, necesitarás autorizar el acceso a tu cuenta
 - El bot está diseñado para ser asíncrono, lo que le permite manejar múltiples tareas sin bloquearse.
 
 ---
+
+# Telegram & Google Drive Downloader Bot
+
+This is a multifunctional Telegram bot designed to download files from direct links, MediaFire, and Google Drive, manage them, and upload them to a specific folder in your Google Drive account. Additionally, it sends the downloaded files directly to the Telegram chat if they do not exceed the size limit.
+
+## ✨ Features
+
+- **Download from Multiple Sources**:
+  - **Direct Links**: Download any file from a direct URL.
+  - **MediaFire**: Automatically resolves MediaFire links to get the direct download link.
+  - **Google Drive**: Quickly copies files from Google Drive to your own account without needing to download and re-upload them.
+- **Google Drive Integration**:
+  - All files are uploaded to a configurable folder in your Google Drive (defaults to `TelegramDownloads`).
+  - **Duplicate Handling**: Avoids uploading duplicate files (except for images and videos) if one with the same name and size already exists.
+  - **Automatic Renaming**: Automatically renames images and videos if a file with the same name already exists to prevent overwriting.
+- **Send to Telegram**:
+  - Downloaded files are sent as documents to the Telegram chat.
+  - **Size Limit**: Does not attempt to upload files larger than 1.9 GB to Telegram to avoid errors, notifying the user that the file is only available on Drive.
+- **Useful Commands**:
+  - `/start`: Displays a welcome message with instructions.
+  - `/download <URL>`: Starts the download from the provided URL.
+  - `/save`: When replying to a message with a file (document or photo), it saves it to your Google Drive.
+- **Real-Time Feedback**:
+  - Shows a progress bar during the download.
+  - Notifies at each step of the process (resolving link, downloading, uploading, etc.).
+- **Activity Logging**:
+  - All operations (successful and failed) are logged in a `download_log.txt` file.
+
+## 🚀 Setup
+
+Follow these steps to get your bot up and running.
+
+### 1. Prerequisites
+
+- **Git**: You will need Git installed. In Termux, you can install it with `pkg install git`.
+- Python 3.8 or higher.
+- A Google account.
+- A Telegram bot (create one by talking to @BotFather).
+
+### 2. Installation
+
+1.  **Clone the Repository**
+    Open your terminal (or Termux) and clone the repository with the following command:
+    ```bash
+    git clone https://github.com/elmendezz/telegram-bot-url-downloader.git
+    ```
+    Then, navigate to the project directory:
+    ```bash
+    cd telegram-bot-url-downloader
+    ```
+
+2.  **Install Dependencies**
+    Run the following command to install the necessary libraries:
+```bash
+pip install python-telegram-bot requests beautifulsoup4 google-api-python-client google-auth-oauthlib google-auth-httplib2
+```
+
+### 3. Google Drive API Configuration
+
+1.  Go to the Google API Console.
+2.  Create a new project (or select an existing one).
+3.  Search for and enable the **Google Drive API**.
+4.  Go to "Credentials" in the left-hand menu.
+5.  Click "Create credentials" -> "OAuth client ID".
+6.  Select "Desktop app" as the application type.
+7.  Download the credentials JSON file. Rename it to `credentials.json` and place it in the same folder as `bot.py`.
+
+### 4. Bot Configuration
+
+Open the `bot.py` file and edit the line 35 with your Telegram bot token:
+
+```python
+BOT_TOKEN = 'TU_TOKEN_AQUI'
+```
+
+### 5. First Run and Authentication
+
+The first time you run the bot, you will need to authorize access to your Google Drive account.
+
+1.  Run the script from your terminal:
+    ```bash
+    python bot.py
+    ```
+2.  A URL will be printed in the console. Copy and paste it into your browser.
+3.  Log in with your Google account and grant the requested permissions.
+4.  After authorization, you will be redirected to a page that might show an error (this is normal). The bot will create a `token.pickle` file in the directory. This file will store your access credentials for future runs.
+
+That's it! Your bot is now up and running.
+
+## 🤖 Commands
+
+- `/start`
+  - Displays the welcome message and a brief user guide.
+
+- `/download <URL>`
+  - Downloads the content from the `<URL>`.
+  - *Example*: `/download https://example.com/archive.zip`
+
+- `/save`
+  - Must be used in reply to a message containing a file (document or photo).
+  - Saves that file directly to your Google Drive.
+
+## 📝 Notes
+- The bot is designed to be asynchronous, allowing it to handle multiple tasks without blocking.
+
+---
