@@ -32,7 +32,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import pickle
 
-BOT_TOKEN = '8224773736:AAGOfMxMqPWFayT551z1SCldRigtjlONIlQ'
+BOT_TOKEN = 'TU_TOKEN_AQUI'
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 LOG_FILE = "download_log.txt"
 FOLDER_NAME = "TelegramDownloads"  # Carpeta fija en tu Drive
@@ -390,4 +390,5 @@ def main():
     application.run_polling(poll_interval=3)
 
 if __name__ == '__main__':
+
     main()
