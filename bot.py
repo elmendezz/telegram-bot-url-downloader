@@ -24,6 +24,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 import os
 import io
 import datetime
+import time
 
 # --- Google Drive ---
 from googleapiclient.discovery import build
@@ -244,29 +245,50 @@ async def download_and_send(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         total_size = int(response.headers.get('content-length', 0))
 
         message = await update.message.reply_text(f'Descargando: {get_progress_bar(0, total_size)}', parse_mode=telegram.constants.ParseMode.MARKDOWN)
+        
+        # --- Lógica de reintentos para la descarga ---
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                # --- Lógica de descarga reanudable ---
+                bytes_downloaded = 0
+                if os.path.exists(local_filename):
+                    bytes_downloaded = os.path.getsize(local_filename)
+                
+                # Añadir header 'Range' para continuar la descarga
+                download_headers = headers.copy()
+                if bytes_downloaded > 0:
+                    download_headers['Range'] = f'bytes={bytes_downloaded}-'
 
-        chunk_size = 5 * 1024 * 1024
-        with requests.get(url, stream=True, timeout=600, headers=headers) as r:
-            r.raise_for_status()
-            bytes_downloaded = 0
-            with open(local_filename, 'wb') as f:
-                last_update_percent = -1
-                for chunk in r.iter_content(chunk_size=chunk_size):
-                    f.write(chunk)
-                    bytes_downloaded += len(chunk)
-                    current_percent = int((bytes_downloaded / total_size) * 10)
-                    if current_percent > last_update_percent:
-                        progress_text = get_progress_bar(bytes_downloaded, total_size)
-                        try:
-                            await context.bot.edit_message_text(
-                                chat_id=chat_id,
-                                message_id=message.message_id,
-                                text=f'Descargando: {progress_text}',
-                                parse_mode=telegram.constants.ParseMode.MARKDOWN
-                            )
-                        except telegram.error.BadRequest:
-                            pass
-                        last_update_percent = current_percent
+                chunk_size = 5 * 1024 * 1024
+                with requests.get(url, stream=True, timeout=600, headers=download_headers) as r:
+                    r.raise_for_status()
+                    with open(local_filename, 'ab') as f: # 'ab' para añadir al archivo si ya existe
+                        last_update_percent = -1
+                        for chunk in r.iter_content(chunk_size=chunk_size):
+                            f.write(chunk)
+                            bytes_downloaded += len(chunk)
+                            current_percent = int((bytes_downloaded / total_size) * 10)
+                            if current_percent > last_update_percent:
+                                progress_text = get_progress_bar(bytes_downloaded, total_size)
+                                try:
+                                    await context.bot.edit_message_text(
+                                        chat_id=chat_id,
+                                        message_id=message.message_id,
+                                        text=f'Descargando: {progress_text}',
+                                        parse_mode=telegram.constants.ParseMode.MARKDOWN
+                                    )
+                                except telegram.error.BadRequest:
+                                    pass
+                                last_update_percent = current_percent
+                break # Si la descarga fue exitosa, salimos del bucle de reintentos
+            except requests.exceptions.Timeout as e:
+                if attempt < max_retries - 1:
+                    wait_time = 5 * (2 ** attempt) # Espera exponencial: 5s, 10s, 20s...
+                    await context.bot.edit_message_text(chat_id=chat_id, message_id=message.message_id, text=f"⏳ Timeout. Reanudando descarga en {wait_time}s... (Intento {attempt + 2}/{max_retries})")
+                    time.sleep(wait_time)
+                else:
+                    raise e # Si se superan los reintentos, relanzamos la excepción para que sea manejada abajo
 
         # Subir a Google Drive
         gdrive_link, status = upload_to_gdrive(local_filename, local_filename)
@@ -391,5 +413,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-# Copyright 2025 elmendezz
-
