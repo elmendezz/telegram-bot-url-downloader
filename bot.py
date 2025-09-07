@@ -1,7 +1,7 @@
-# BOT Version:4
+# BOT Version:5
 # Change log:
-# - Se corrigió el error "Can't parse entities" en la función /save.
-# - Se eliminó la interpretación de formato Markdown de los mensajes que contienen el enlace de Google Drive para evitar conflictos con caracteres especiales en los nombres de archivo.
+# - Se incrementó el 'timeout' de 10 a 30 segundos en requests.head() para descargas.
+# - Se agregó un manejo de error específico para el 'Timeout' para un mensaje más claro.
 # Dependencias:
 # - requests
 # - telegram
@@ -20,7 +20,7 @@ import requests
 from bs4 import BeautifulSoup
 import telegram
 from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 import os
 import io
 import datetime
@@ -32,7 +32,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import pickle
 
-BOT_TOKEN = 'TU_TOKEN_AQUI'
+BOT_TOKEN = '8224773736:AAGOfMxMqPWFayT551z1SCldRigtjlONIlQ'
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 LOG_FILE = "download_log.txt"
 FOLDER_NAME = "TelegramDownloads"  # Carpeta fija en tu Drive
@@ -390,5 +390,4 @@ def main():
     application.run_polling(poll_interval=3)
 
 if __name__ == '__main__':
-
     main()
